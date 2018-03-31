@@ -39,7 +39,7 @@ public class GraphColor {
                     System.exit(1);
                 }
 //                for (int i = 0; i < vexes.length; i++) {
-                search.move(vexes[loop % vexes.length], loop);
+                search.findMove(loop);
 //                }
             }
             System.out.println("Color is " + String.valueOf(k));
