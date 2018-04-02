@@ -29,8 +29,8 @@ public class Graph {
         for (int i=0;i<vexes.length;i++){
             value+=vexes[i].calcEnemyValue();
         }
-        this.best_value=value;
-        return value;
+        this.best_value=value/2;
+        return value/2;
     }
 
 }

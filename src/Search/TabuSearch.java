@@ -2,7 +2,6 @@ package Search;
 
 import model.*;
 
-import java.util.ArrayList;
 
 /**
  * Created by CaiNot on 2018/3/20.
@@ -12,11 +11,12 @@ public class TabuSearch {
     private Vex vex = null, vex_outside_tabu = null, vex_in_tabu = null;
     private int k = 0;
     private Graph graph = null;
-    private Vex[] vexes_tabu = null;
-    private int best_f = 0,color=0;
-    private int f = 0, delt = 10000, delt_tabu = 10000;
+    private int best_f = 0, color = 0;
+    private int f = 0, delt = 10000, delt_tabu = 10000, best_delt = 100;
     private int color_after_in_tabu = 0, color_after_outside_tabu = 0;
     private int best_count_in_tabu = 0, best_count_outside_tabu = 0;
+
+    int count_xx = 0;
 
     /**
      * @param graph_matrix 矩阵图
@@ -70,17 +70,21 @@ public class TabuSearch {
      * @param step
      * @return
      */
-    public int findMove(int step) {
+    public void findMove(int step) {
         Vex vex = null;
+        this.delt = 10000;
+        this.delt_tabu = 10000;
 
         int color_before = 0;
 
-        int neightbor_size = 0;
+
         int tmp = 0;
+        count_xx = 0; //记录被禁忌的节点数
 
         for (int x = 0; x < this.graph.vexes.length; x++) {
             vex = this.graph.vexes[x];
             if (vex.calcEnemyValue() == 0) {
+                count_xx++;
                 continue;
             }
             color_before = vex.getColor();
@@ -94,6 +98,9 @@ public class TabuSearch {
                                 best_count_in_tabu = 0;
                             }
                             best_count_in_tabu++;
+
+                            count_xx++;
+
                             if (1 > (int) (Math.random() * best_count_in_tabu)) {
                                 vex_in_tabu = vex;
                                 color_after_in_tabu = i;
@@ -109,28 +116,49 @@ public class TabuSearch {
                             if (1 > (int) (Math.random() * best_count_outside_tabu)) {//等概率交换
                                 color_after_outside_tabu = i;
                                 vex_outside_tabu = vex;
+//                                count_xx++;
+//                                System.out.println(String.valueOf(count_xx));
                             }
                         }
                     }
                 }
             }
         }
-        if(delt_tabu<f-best_f&&delt_tabu<delt){
-            delt=delt_tabu;
-            this.vex=this.vex_in_tabu;
-            this.color=this.color_after_in_tabu;
-        }else {
-            this.vex=this.vex_outside_tabu;
-            this.color=this.color_after_outside_tabu;
+
+
+
+        if ((delt_tabu < best_f - f) && (delt_tabu < delt)) {
+            delt = delt_tabu;
+            this.vex = this.vex_in_tabu;
+            this.color = this.color_after_in_tabu;
+
+            System.out.println("AA" + String.valueOf(count_xx));
+
+        } else {
+            this.vex = this.vex_outside_tabu;
+            this.color = this.color_after_outside_tabu;
+
+//            System.out.println("BB"+String.valueOf(count_xx));
         }
-        return 0;
+
+        if(count_xx==this.graph.vexes.length){
+            delt = delt_tabu;
+            this.vex = this.vex_in_tabu;
+            this.color = this.color_after_in_tabu;
+
+            System.out.println("BB" + String.valueOf(count_xx));
+        }
+
     }
 
-    public void makeMove(){
-        f=delt+f;
-        if(f<best_f){
-            best_f=f;
+    public void makeMove(int step) {
+        f = delt + f;
+        if (delt < best_delt)
+            best_delt = delt;
+        if (f < best_f) {
+            best_f = f;
         }
+        this.vex.move(this.vex.getColor(), this.color, step);
 
     }
 
